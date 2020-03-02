@@ -1,0 +1,21 @@
+{
+  "name": "boilerplate",
+  "version": "0.0.1",
+  "description": "Starter files for new HTML projects",
+  "main": "index.html",
+  "scripts": {
+    "start": "gulp"
+  },
+  "author": "smartincode",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.26.7",
+    "gulp": "^4.0.2",
+    "gulp-babel-minify": "^0.5.1",
+    "gulp-clean-css": "^4.2.0",
+    "gulp-cli": "^2.2.0",
+    "gulp-imagemin": "^7.1.0",
+    "gulp-newer": "^1.4.0",
+    "gulp-sass": "^4.0.2"
+  }
+}
