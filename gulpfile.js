@@ -6,6 +6,7 @@
     cleancss.- minificar css (Averigurar)
     browserSync.- Sincroniza y recarga el navegador (F5) por cambios realizados
     minify.- plugin babel minifica javascript moderno
+    pug.- Procesador a HTML5
 */
 
 const gulp = require("gulp"),
@@ -14,7 +15,8 @@ const gulp = require("gulp"),
   sass = require("gulp-sass"),
   cleanCSS = require("gulp-clean-css"),
   browserSync = require("browser-sync").create(),
-  minifyJS = require("gulp-babel-minify");
+  minifyJS = require("gulp-babel-minify"),
+  pug = require("gulp-pug");
 
 const sassOptions = {
   outputStyle: "expanded",
@@ -34,7 +36,7 @@ const sassOptions = {
     gulp.serie.- proceso de tareas una detras de otra, una a una
 */
 
-// Tarea para procesas archive sass  Styles.scss a carpeta dist
+// Preprocesador CSS (only styles)
 gulp.task("sass", () => {
   return gulp
     .src("src/scss/styles.scss")
@@ -43,6 +45,7 @@ gulp.task("sass", () => {
     .pipe(browserSync.reload({ stream: true }));
 });
 
+//Minificafor CSS (only styles)
 gulp.task("cssmin", () => {
   return gulp
     .src("dist/css/styles.css")
@@ -50,6 +53,7 @@ gulp.task("cssmin", () => {
     .pipe(gulp.dest("dist/css/min"));
 });
 
+//Minificafor imagenes
 gulp.task("images", () => {
   return gulp
     .src("src/images/**/*")
@@ -59,21 +63,7 @@ gulp.task("images", () => {
     .pipe(browserSync.reload({ stream: true }));
 });
 
-gulp.task("copyhtml", () => {
-  return gulp
-    .src("src/*.html")
-    .pipe(gulp.dest("dist"))
-    .pipe(browserSync.reload({ stream: true }));
-});
-
-// Copying fonts
-gulp.task("fonts", () => {
-  return gulp
-    .src("src/fonts/**/*")
-    .pipe(gulp.dest("dist/fonts"))
-    .pipe(browserSync.reload({ stream: true }));
-});
-
+//minificador js
 gulp.task("minifyjs", () =>
   gulp
     .src("src/js/*")
@@ -82,9 +72,37 @@ gulp.task("minifyjs", () =>
     .pipe(browserSync.reload({ stream: true }))
 );
 
-//files para github master/docs
+//Preprocesador html (only index)
+// https://www.npmjs.com/package/gulp-pug
+gulp.task("pug-html", function buildHTML() {
+  return gulp
+    .src("src/index.pug")
+    .pipe(pug())
+    .pipe(gulp.dest("dist/"))
+    .pipe(browserSync.reload({ stream: true }));
+});
+
+//SECUNDARIO
+
+//simple copy html
+gulp.task("copyhtml", () => {
+  return gulp
+    .src("src/*.html")
+    .pipe(gulp.dest("dist"))
+    .pipe(browserSync.reload({ stream: true }));
+});
+// Copy fonts
+gulp.task("fonts", () => {
+  return gulp
+    .src("src/fonts/**/*")
+    .pipe(gulp.dest("dist/fonts"))
+    .pipe(browserSync.reload({ stream: true }));
+});
+
+//FILES FOR GITHUB-PAGES MASTER/DOCS
 gulp.task("docs", () => gulp.src("dist/**/*").pipe(gulp.dest("docs")));
 
+//SERVER
 gulp.task("serve", () => {
   browserSync.init({
     server: {
@@ -98,6 +116,7 @@ gulp.task("serve", () => {
   gulp.watch("src/scss/**/*", gulp.series("sass"));
   gulp.watch("src/images/**/*", gulp.series("images"));
   gulp.watch("src/*.html", gulp.series("copyhtml"));
+  gulp.watch("src/**/*.pug", gulp.series("pug-html"));
   gulp.watch("src/fonts/**/*", gulp.series("fonts"));
   gulp.watch("src/js/*", gulp.series("minifyjs"));
   gulp.watch("dist/*").on("change", browserSync.reload);
@@ -106,7 +125,7 @@ gulp.task("serve", () => {
 gulp.task(
   "default",
   gulp.series(
-    gulp.parallel("fonts", "images", "minifyjs", "copyhtml", "sass"),
+    gulp.parallel("fonts", "images", "minifyjs", "sass", "pug-html"),
     "serve"
   )
 );
