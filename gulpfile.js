@@ -72,7 +72,7 @@ gulp.task("minifyjs", () =>
     .pipe(browserSync.reload({ stream: true }))
 );
 
-//Preprocesador html (only index)
+//Pug Preprocesador HTML (only index)
 // https://www.npmjs.com/package/gulp-pug
 gulp.task("pug-html", function buildHTML() {
   return gulp
@@ -84,13 +84,6 @@ gulp.task("pug-html", function buildHTML() {
 
 //SECUNDARIO
 
-//simple copy html
-gulp.task("copyhtml", () => {
-  return gulp
-    .src("src/*.html")
-    .pipe(gulp.dest("dist"))
-    .pipe(browserSync.reload({ stream: true }));
-});
 // Copy fonts
 gulp.task("fonts", () => {
   return gulp
@@ -115,7 +108,6 @@ gulp.task("serve", () => {
   // gulp.watch("src/scss/**/*", gulp.series("sass","cssmin"));
   gulp.watch("src/scss/**/*", gulp.series("sass"));
   gulp.watch("src/images/**/*", gulp.series("images"));
-  gulp.watch("src/*.html", gulp.series("copyhtml"));
   gulp.watch("src/**/*.pug", gulp.series("pug-html"));
   gulp.watch("src/fonts/**/*", gulp.series("fonts"));
   gulp.watch("src/js/*", gulp.series("minifyjs"));
