@@ -14,7 +14,8 @@ const gulp = require("gulp"),
   sass = require("gulp-sass"),
   cleanCSS = require("gulp-clean-css"),
   browserSync = require("browser-sync").create(),
-  minifyJS = require("gulp-babel-minify");
+  minifyJS = require("gulp-babel-minify"),
+  pug = require("gulp-pug");
 
 const sassOptions = {
   outputStyle: "expanded",
@@ -33,6 +34,15 @@ const sassOptions = {
     gulp.parallel.- proceso de tareas aleatorio o en paralelo
     gulp.serie.- proceso de tareas una detras de otra, una a una
 */
+
+//pug preprocesador HTML
+gulp.task("pug", () => {
+  return gulp
+    .src("src/index.pug")
+    .pipe(pug({}))
+    .pipe(gulp.dest("dist/"))
+    .pipe(browserSync.reload({ stream: true }));
+});
 
 // Tarea para procesas archive sass  Styles.scss a carpeta dist
 gulp.task("sass", () => {
@@ -100,6 +110,7 @@ gulp.task("serve", () => {
   gulp.watch("src/*.html", gulp.series("copyhtml"));
   gulp.watch("src/fonts/**/*", gulp.series("fonts"));
   gulp.watch("src/js/*", gulp.series("minifyjs"));
+  gulp.watch("src/**/*.pug", gulp.series("pug"));
   gulp.watch("dist/*").on("change", browserSync.reload);
 });
 
