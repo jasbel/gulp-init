@@ -36,7 +36,16 @@ const sassOptions = {
     gulp.serie.- proceso de tareas una detras de otra, una a una
 */
 
-// Preprocesador CSS (only styles)
+//pug preprocesador HTML
+gulp.task("pug", () => {
+  return gulp
+    .src("src/index.pug")
+    .pipe(pug({}))
+    .pipe(gulp.dest("dist/"))
+    .pipe(browserSync.reload({ stream: true }));
+});
+
+// Tarea para procesas archive sass  Styles.scss a carpeta dist
 gulp.task("sass", () => {
   return gulp
     .src("src/scss/styles.scss")
@@ -134,6 +143,7 @@ gulp.task("serve", () => {
   // gulp.watch("src/**/*.pug", gulp.series("pug"));
   gulp.watch("src/fonts/**/*", gulp.series("fonts"));
   gulp.watch("src/js/*", gulp.series("minifyjs"));
+  gulp.watch("src/**/*.pug", gulp.series("pug"));
   gulp.watch("dist/*").on("change", browserSync.reload);
 });
 
