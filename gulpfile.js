@@ -74,7 +74,7 @@ gulp.task("minifyjs", () =>
 
 //Pug Preprocesador HTML (only index)
 // https://www.npmjs.com/package/gulp-pug
-gulp.task("pug-html", function buildHTML() {
+gulp.task("pug", function buildHTML() {
   return gulp
     .src("src/index.pug")
     .pipe(pug())
@@ -108,7 +108,7 @@ gulp.task("serve", () => {
   // gulp.watch("src/scss/**/*", gulp.series("sass","cssmin"));
   gulp.watch("src/scss/**/*", gulp.series("sass"));
   gulp.watch("src/images/**/*", gulp.series("images"));
-  gulp.watch("src/**/*.pug", gulp.series("pug-html"));
+  // gulp.watch("src/**/*.pug", gulp.series("pug"));
   gulp.watch("src/fonts/**/*", gulp.series("fonts"));
   gulp.watch("src/js/*", gulp.series("minifyjs"));
   gulp.watch("dist/*").on("change", browserSync.reload);
@@ -117,7 +117,13 @@ gulp.task("serve", () => {
 gulp.task(
   "default",
   gulp.series(
-    gulp.parallel("fonts", "images", "minifyjs", "sass", "pug-html"),
+    gulp.parallel(
+      "fonts",
+      "images",
+      "minifyjs",
+      "sass"
+      // "pug"
+    ),
     "serve"
   )
 );
