@@ -1,17 +1,12 @@
-// Variables Bootstrap Modify
-// Cambiando valores primarios
-$primary: $my-blue;
-$secondary: $my-grey;
-$success: $light-green;
-$dark: $dark-text;
+/*
+ *  Bootstrap 4 All 
+ */
 
-// $border-width:                1px !default;
-$border-width: 2px !default;
-
-// $grid-gutter-width:           30px !default;
-// $grid-gutter-width: 35px !default;
+/// Variables Init
+// $primary: $my-blue;
 
 //import de node_modules package
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 
-//modify
+/// modify classes
+//.btn {}

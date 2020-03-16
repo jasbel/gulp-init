@@ -62,6 +62,29 @@ gulp.task("images", () => {
     .pipe(gulp.dest("dist/images"))
     .pipe(browserSync.reload({ stream: true }));
 });
+//JS modules bootstrap, popper, jquery
+gulp.task("js-module", () =>
+  gulp
+    .src([
+      "node_modules/bootstrap/dist/js/bootstrap.min.js",
+      "node_modules/popper.js/dist/popper.min.js",
+      "node_modules/jquery/dist/jquery.min.js"
+    ])
+    .pipe(gulp.dest("./dist/js/vendor"))
+    .pipe(browserSync.stream())
+);
+
+gulp.task("fontawesome", () =>
+  gulp
+    .src([
+      "./node_modules/@fortawesome/fontawesome-free/*/",
+      "!./node_modules/@fortawesome/fontawesome-free/{less,less/}",
+      "!./node_modules/@fortawesome/fontawesome-free/{scss,scss/}",
+      "!./node_modules/@fortawesome/fontawesome-free/.",
+      "!./node_modules/@fortawesome/fontawesome-free/.{txt,json,md}"
+    ])
+    .pipe(gulp.dest("./dist/fonts/font-awesome"))
+);
 
 //minificador js
 gulp.task("minifyjs", () =>
@@ -121,7 +144,8 @@ gulp.task(
       "fonts",
       "images",
       "minifyjs",
-      "sass"
+      "sass",
+      "js-module"
       // "pug"
     ),
     "serve"
