@@ -6,6 +6,7 @@
     cleancss.- minificar css (Averigurar)
     browserSync.- Sincroniza y recarga el navegador (F5) por cambios realizados
     minify.- plugin babel minifica javascript moderno
+    pug.- Procesador a HTML5
 */
 
 const gulp = require("gulp"),
@@ -18,14 +19,13 @@ const gulp = require("gulp"),
   pug = require("gulp-pug");
 
 const sassOptions = {
-  outputStyle: "expanded",
+  outputStyle: "compressed",
   errLogToConsole: true
 };
 
 /* Estructure
     src.- Carpeta de desarrollo 
     dist.- Carpeta de distribucion y compilado
-
     gulp.task.- tareas realizadas que son llamadas
     gulp.watch.- mira cambios en una direccion especifica para luego llamar a tareas especificas
     gulp.src direccion principal necesaria
@@ -35,14 +35,9 @@ const sassOptions = {
     gulp.serie.- proceso de tareas una detras de otra, una a una
 */
 
-//pug preprocesador HTML
-gulp.task("pug", () => {
-  return gulp
-    .src("src/index.pug")
-    .pipe(pug({}))
-    .pipe(gulp.dest("dist/"))
-    .pipe(browserSync.reload({ stream: true }));
-});
+/************************* */
+/*      Primary           */
+/************************ */
 
 // Tarea para procesas archive sass  Styles.scss a carpeta dist
 gulp.task("sass", () => {
@@ -53,6 +48,7 @@ gulp.task("sass", () => {
     .pipe(browserSync.reload({ stream: true }));
 });
 
+//Minificafor CSS (only styles)
 gulp.task("cssmin", () => {
   return gulp
     .src("dist/css/styles.css")
@@ -60,6 +56,7 @@ gulp.task("cssmin", () => {
     .pipe(gulp.dest("dist/css/min"));
 });
 
+//Minificafor imagenes
 gulp.task("images", () => {
   return gulp
     .src("src/images/**/*")
@@ -69,21 +66,7 @@ gulp.task("images", () => {
     .pipe(browserSync.reload({ stream: true }));
 });
 
-gulp.task("copyhtml", () => {
-  return gulp
-    .src("src/*.html")
-    .pipe(gulp.dest("dist"))
-    .pipe(browserSync.reload({ stream: true }));
-});
-
-// Copying fonts
-gulp.task("fonts", () => {
-  return gulp
-    .src("src/fonts/**/*")
-    .pipe(gulp.dest("dist/fonts"))
-    .pipe(browserSync.reload({ stream: true }));
-});
-
+//minificador js
 gulp.task("minifyjs", () =>
   gulp
     .src("src/js/*")
@@ -92,9 +75,106 @@ gulp.task("minifyjs", () =>
     .pipe(browserSync.reload({ stream: true }))
 );
 
-//files para github master/docs
+//Pug Preprocesador HTML (only index)
+// https://www.npmjs.com/package/gulp-pug
+gulp.task("pug", function buildHTML() {
+  return gulp
+    .src("src/index.pug")
+    .pipe(pug())
+    .pipe(gulp.dest("dist/"))
+    .pipe(browserSync.reload({ stream: true }));
+});
+
+/************************* */
+/*      SECUNDARIOS        */
+/************************* */
+
+// Copy fonts
+gulp.task("fonts", () => {
+  return gulp
+    .src("src/fonts/**/*")
+    .pipe(gulp.dest("dist/fonts"))
+    .pipe(browserSync.reload({ stream: true }));
+});
+
+//FILES FOR GITHUB-PAGES MASTER/DOCS
 gulp.task("docs", () => gulp.src("dist/**/*").pipe(gulp.dest("docs")));
 
+/************************* */
+/*      NODE MODULES       */
+/************************ */
+
+/*  Scss
+ *    1.- Bootstrap
+ *    2.- Slick-slider
+ *    3.- Slick-theme
+ */
+gulp.task("vendor-scss", () => {
+  return (
+    gulp
+      .src([
+        "node_modules/bootstrap/scss/bootstrap.scss",
+        "node_modules/slick-slider/slick/slick.scss",
+        "node_modules/slick-slider/slick/slick-theme.scss"
+      ])
+      .pipe(sass({ outputStyle: "compressed" }))
+      // .pipe(gulp.dest("dist/css/vendor"))
+      .pipe(gulp.dest("dist/css"))
+      .pipe(browserSync.reload({ stream: true }))
+  );
+});
+/*  CSS
+ *    1.- FontAwesome
+ *    2.-
+ */
+gulp.task("vendor-css", () => {
+  return (
+    gulp
+      .src(
+        "./node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css"
+      )
+      // .pipe(gulp.dest("dist/css/vendor"))
+      .pipe(gulp.dest("dist/css"))
+      .pipe(browserSync.reload({ stream: true }))
+  );
+});
+/*    Fonts
+ *      1.- FontAwesome
+ *      2.- Slick-Fonts
+ */
+gulp.task("vendor-fonts", () => {
+  return gulp
+    .src([
+      "./node_modules/@fortawesome/fontawesome-free/webfonts/*",
+      "./node_modules/slick-slider/slick/fonts/*"
+    ])
+    .pipe(gulp.dest("dist/fonts"))
+    .pipe(browserSync.reload({ stream: true }));
+});
+/*    JavaScripts
+ *      1.- Bootstrap
+ *      2.- Jquery
+ *      3.- Popper.js
+ *      4.- Slick-slider
+ *      5.- scroll-Reveal
+ */
+gulp.task("vendor-js", () => {
+  return gulp
+    .src([
+      "./node_modules/bootstrap/dist/js/bootstrap.min.js",
+      "./node_modules/bootstrap/dist/js/bootstrap.min.js.map",
+      "./node_modules/jquery/dist/jquery.min.js",
+      "./node_modules/popper.js/dist/umd/popper.min.js",
+      "./node_modules/slick-slider/slick/slick.min.js",
+      "./node_modules/scrollreveal/dist/scrollreveal.min.js"
+    ])
+    .pipe(gulp.dest("dist/js/vendor"))
+    .pipe(browserSync.reload({ stream: true }));
+});
+
+/******************** */
+/*      SERVER        */
+/******************** */
 gulp.task("serve", () => {
   browserSync.init({
     server: {
@@ -107,17 +187,30 @@ gulp.task("serve", () => {
   // gulp.watch("src/scss/**/*", gulp.series("sass","cssmin"));
   gulp.watch("src/scss/**/*", gulp.series("sass"));
   gulp.watch("src/images/**/*", gulp.series("images"));
-  gulp.watch("src/*.html", gulp.series("copyhtml"));
+  // gulp.watch("src/**/*.pug", gulp.series("pug"));
   gulp.watch("src/fonts/**/*", gulp.series("fonts"));
   gulp.watch("src/js/*", gulp.series("minifyjs"));
   gulp.watch("src/**/*.pug", gulp.series("pug"));
   gulp.watch("dist/*").on("change", browserSync.reload);
 });
 
+/*********************** */
+/*  DEFAULT SERVER GULP  */
+/*********************** */
 gulp.task(
   "default",
   gulp.series(
-    gulp.parallel("fonts", "images", "minifyjs", "copyhtml", "sass"),
+    gulp.parallel(
+      "fonts",
+      "images",
+      "minifyjs",
+      "sass",
+      "vendor-js",
+      "vendor-fonts"
+      // "vendor-scss",
+      // "vendor-css"
+      // "pug"
+    ),
     "serve"
   )
 );
