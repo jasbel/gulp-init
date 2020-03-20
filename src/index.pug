@@ -13,13 +13,18 @@ html(lang="en")
         
         //- FontAwesome
         //- link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css')
-        link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css')
-        link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css')
-        link(href='https://fonts.googleapis.com/css?family=Lato|Roboto:400&display=swap' rel='stylesheet')
+        
+        //- Slick Slider
+        //- link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css')
+        //- link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css')
+
+        //- Font Google
+        //- link(href='https://fonts.googleapis.com/css?family=Lato|Roboto:400&display=swap' rel='stylesheet')
         link(rel='stylesheet' href='./css/styles.css')
     body
         // Header
         header
+            //prueba Bootstrap
             img(src='' alt='')
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <a class="navbar-brand" href="#">Navbar</a>
@@ -44,19 +49,34 @@ html(lang="en")
         // Main
         main
             .container
+                .slick-slider  
+                    .box-slider
+                        p Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, ab?
+                        a(href="#")
+                            <i class="fas fa-search"></i>
+                    .box-slider
+                        p Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, ab?
+                         a(href="#")
+                            <i class="fas fa-search"></i>
+                    .box-slider
+                        p Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, ab?
+                         a(href="#")
+                            <i class="fas fa-search"></i>
         // End Main
-        // Section
-        section
+        // Sectionx
+        section(class="sectionx")
             .container
-        // End Section
+        // End Sectionx
         // Footer
         footer
             .container
         // End Footer
         script(src='js/vendor/jquery.min.js')
-        script(src='https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js')
         //- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         script(src='js/vendor/popper.min.js')
-
         script( src="js/vendor/bootstrap.min.js")
+        //- script(src='https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js')
+        script(src='js/vendor/slick.min.js')
+        //-scroll reveal
+        script(src='js/vendor/scrollreveal.min.js')
         script(src='./js/scripts.js')
