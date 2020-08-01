@@ -1,0 +1,64 @@
+
+//How to use:   @include  font-responsive(26, 20)
+// font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300))) ;
+@mixin font-responsive($f-max, $f-min: $font-size-small, $w-max: $desktop-responsive, $w-min: $phone-responsive) {
+
+    $f-min-px: $f-min + px;
+    $w-min-px: $w-min + px;
+    $font-size: $f-max + px;
+    $desktop-px: $desktop-responsive * 1px;
+    $phone-px: $phone-responsive * 1px;
+    font-size: $font-size;
+
+    @if( $w-max == $desktop-responsive and $w-min == $phone-responsive) {
+        @media (max-width: $desktop-px) {
+            & {
+                font-size: calc( #{$f-min-px} + (#{$f-max} - #{$f-min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+            }
+        }
+        @media (max-width: $phone-px) {
+            & {
+                font-size:  #{$f-min-px} ;
+            }
+        }
+    } @else {
+        font-size: calc( #{$f-min-px} + (#{$f-max} - #{$f-min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+    }
+    
+}
+
+@function responsive($max, $min: "", $w-max: $desktop-responsive, $w-min: $phone-responsive ) {
+
+    @if( $min == "" or $max == $min) {
+        @return $max + px;
+    }
+    $min-px: $min + px;
+    $w-min-px: $w-min + px;
+    $result: calc( #{$min-px} + (#{$max} - #{$min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+    @return $result;
+}
+
+@mixin padding-responsive( $pt-max:"", $pt-min:"", $pr-max:"", $pr-min:"", $pb-max:"", $pb-min:"", $pl-max:"", $pl-min:"", $w-max: $desktop-responsive, $w-min: $phone-responsive ) {
+    @if $pt-max!="" and $pt-min!="" {
+        padding-top: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+        @if $pr-max!="" and $pr-min!="" {
+            padding-right: responsive($pr-max, $pr-min, $w-max, $w-min) ;
+            @if $pb-max!="" and $pb-min!="" {
+                padding-bottom: responsive($pb-max, $pb-min, $w-max, $w-min) ;
+                @if $pl-max!="" and $pl-min!="" {
+                    padding-left: responsive($pl-max, $pl-min, $w-max, $w-min) ;
+                } @else {
+                    padding-left: responsive($pr-max, $pr-min, $w-max, $w-min) ;
+                }
+            } @else {
+                padding-bottom: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+                padding-left: responsive($pr-max, $pr-min, $w-max, $w-min) ;
+            }
+
+        } @else {
+            padding-right: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+            padding-bottom: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+            padding-left: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+        }
+    }
+}

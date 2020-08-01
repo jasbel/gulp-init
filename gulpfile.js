@@ -51,6 +51,7 @@ const sassOptions = {
 // File paths
 const files = {
     scssPath: 'src/scss/**/*.scss',
+    stylePath: 'src/scss/styles.scss',
     jsPath: 'src/js/*.js',
     htmlPath: 'src/**/*.pug',
     imagesPath: 'src/images/**/*',
@@ -64,7 +65,7 @@ const files = {
 
 // Sass task: compiles the style.scss file into style.css
 function scssTask() {
-    return src(files.scssPath)
+    return src(files.stylePath)
         .pipe(sourcemaps.init()) // initialize sourcemaps first
         .pipe(sass(sassOptions)) // compile SCSS to CSS
         .pipe(postcss([autoprefixer(), cssnano()])) // PostCSS plugins
