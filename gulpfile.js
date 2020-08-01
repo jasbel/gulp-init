@@ -35,7 +35,7 @@ const postcss = require('gulp-postcss');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 var replace = require('gulp-replace');
-// const minifyJS = require("gulp-babel-minify");
+const minifyJS = require("gulp-babel-minify");
 
 const browserSync = require("browser-sync").create();
 const imagemin = require("gulp-imagemin");
@@ -113,7 +113,7 @@ function pugHTMLTask() {
 //js Babel codigo moderno
 function jsBabelTask() {
     return src([files.jsPath])
-        .pipe(concat('script.min.js'))
+        .pipe(concat('main.min.js'))
         .pipe(minifyJS({ mangle: { keepClassName: true } }))
         .pipe(dest("dist/js"))
         .pipe(browserSync.reload({ stream: true }))
@@ -145,19 +145,18 @@ function watchTask() {
         notify: false,
         injectChanges: true
     });
-    watch([files.scssPath, files.jsPath], { interval: 1000, usePolling: true }, //Makes docker work
-        series(
-            parallel(scssTask, jsTask)
-            // cacheBustTask
-        )
-    );
-    // watch([files.scssPath], series(scssTask));
+    // watch([files.scssPath, files.jsPath], { interval: 1000, usePolling: true }, //Makes docker work
+    //     series(
+    //         parallel(scssTask, jsTask)
+    //     )
+    // );
+    watch([files.scssPath], series(scssTask));
     // watch([files.jsPath], series(jsTask));
     watch([files.imagesPath], series(imagesTask));
     watch([files.fontPath], series(fontTask));
     watch([files.indexHtmlPath], series(indexHtmlTask));
     // watch([files.htmlPath], series(pugHTMLTask));
-    // watch([files.jsPath], series(jsBabelTask));
+    watch([files.jsPath], series(jsBabelTask));
     watch("dist/*").on("change", browserSync.reload);;
     watch("src/*.html").on("change", browserSync.reload);;
 }
@@ -175,8 +174,8 @@ exports.default = series(
         fontTask,
         scssTask,
         imagesTask,
-        jsTask,
-        // jsBabelTask,
+        // jsTask,
+        jsBabelTask,
         // pugHTMLTask,
         //docsGitHUb,
     ),
