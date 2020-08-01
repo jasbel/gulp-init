@@ -1,0 +1,223 @@
+// --------------------------------------------------
+// contexts
+@mixin when-inside($selector) {
+    #{$selector} & {
+        @content;
+    }
+}
+
+// --------------------------------------------------
+// aspect ratio
+// e.g. @include aspect-ratio(16,9);
+// expects child to have class of `.content` (could be changed to a wildcard `*`)
+@mixin aspect-ratio($width, $height) {
+    position: relative;
+    &::before {
+        content: '';
+        display: block;
+        padding-top: ($height / $width) * 100%;
+        width: 100%;
+    }
+    >.content {
+        bottom: 0;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}
+
+//How to use: @include css3-prefix(transform, scale3d(2.5, 2, 1.5));
+@mixin css3-prefix($prop, $value) {
+    -webkit-#{$prop}: #{$value};
+    -moz-#{$prop}: #{$value};
+    -ms-#{$prop}: #{$value};
+    -o-#{$prop}: #{$value};
+    #{$prop}: #{$value};
+}
+
+//How to use: @include vertical-center();
+@mixin vertical-center {
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+//How to use: 
+// @include keyframes(background) {
+//    0% {
+//     background: white;
+//   }
+//   50% {
+//     background: lightblue;
+//   }
+//   100% {
+//     background: royalblue;
+//   } 
+// }
+@mixin keyframes($name) {
+    @-webkit-keyframes #{$name} {
+        @content;
+    }
+    @-moz-keyframes #{$name} {
+        @content;
+    }
+    @keyframes #{$name} {
+        @content;
+    }
+}
+
+//How to use:  @include abs-position(100px, 100px, auto, auto);
+@mixin abs-position ($top, $right, $bottom, $left) {
+    position: absolute;
+    top: $top;
+    right: $right;
+    bottom: $bottom;
+    left: $left;
+}
+
+//How to use:  @include clearfix;
+@mixin clearfix {
+    &:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+
+//How to use:  @include opacity(.4);
+@mixin opacity($opacity) {
+    opacity: $opacity;
+    $opacity-ie: $opacity * 100;
+    filter: alpha(opacity=$opacity-ie); //IE8
+}
+
+//How to use:  body {@include font-size(16);}
+@mixin font-size($size, $base: 16) {
+    font-size: $size; // fallback for old browsers
+    font-size: ($size / $base) * 1rem;
+}
+
+//How to use:   @include gradient(#07c, #06f, vertical);
+@mixin gradient($start-color, $end-color, $orientation) {
+    background: $start-color;
+    @if $orientation=='vertical' {
+        background: -webkit-linear-gradient(top, $start-color, $end-color);
+        background: linear-gradient(to bottom, $start-color, $end-color);
+    }
+    @else if $orientation=='horizontal' {
+        background: -webkit-linear-gradient(left, $start-color, $end-color);
+        background: linear-gradient(to right, $start-color, $end-color);
+    }
+    @else {
+        background: -webkit-radial-gradient(center, ellipse cover, $start-color, $end-color);
+        background: radial-gradient(ellipse at center, $start-color, $end-color);
+    }
+}
+
+// How to use   @include roundedCorners(10);
+@mixin roundedCorners($size) {
+    -webkit-border-radius: $size + px;
+    -moz-border-radius: $size + px;
+    border-radius: $size + px;
+}
+
+
+// How to use   @include backgroundImage($background-position, $background-color, $background-size);
+@mixin backgroundImage($background-position, $background-color, $background-size) {
+    background-repeat: no-repeat;
+    background-position: $background-position;
+    background-color: $background-color;
+    background-size: $background-size;
+}
+
+@mixin flexCenter($align: left) {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    -webkit-box-align: center;
+    align-items: center;
+    justify-content: $align;
+    -ms-flex-pack: $align;
+}
+
+@mixin inlineFlexCenter($align: left) {
+    display: -webkit-inline-flex;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    -webkit-box-align: center;
+    align-items: center;
+    justify-content: $align;
+    -ms-flex-pack: $align;
+}
+
+
+//How to use:   @include  font-responsive(26, 20)
+// font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300))) ;
+@mixin font-responsive($f-max, $f-min: $font-size-small, $w-max: $desktop-responsive, $w-min: $phone-responsive) {
+
+    $f-min-px: $f-min + px;
+    $w-min-px: $w-min + px;
+    $font-size: $f-max + px;
+    $desktop-px: $desktop-responsive * 1px;
+    $phone-px: $phone-responsive * 1px;
+    font-size: $font-size;
+
+    @if( $w-max == $desktop-responsive and $w-min == $phone-responsive) {
+        @media (max-width: $desktop-px) {
+            & {
+                font-size: calc( #{$f-min-px} + (#{$f-max} - #{$f-min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+            }
+        }
+        @media (max-width: $phone-px) {
+            & {
+                font-size:  #{$f-min-px} ;
+            }
+        }
+    } @else {
+        font-size: calc( #{$f-min-px} + (#{$f-max} - #{$f-min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+    }
+    
+}
+
+@function responsive($max, $min: "", $w-max: $desktop-responsive, $w-min: $phone-responsive ) {
+
+    @if( $min == "" or $max == $min) {
+        @return $max + px;
+    }
+    $min-px: $min + px;
+    $w-min-px: $w-min + px;
+    $result: calc( #{$min-px} + (#{$max} - #{$min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+    @return $result;
+}
+
+@mixin padding-responsive( $pt-max:"", $pt-min:"", $pr-max:"", $pr-min:"", $pb-max:"", $pb-min:"", $pl-max:"", $pl-min:"", $w-max: $desktop-responsive, $w-min: $phone-responsive ) {
+    @if $pt-max!="" and $pt-min!="" {
+        padding-top: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+        @if $pr-max!="" and $pr-min!="" {
+            padding-right: responsive($pr-max, $pr-min, $w-max, $w-min) ;
+            @if $pb-max!="" and $pb-min!="" {
+                padding-bottom: responsive($pb-max, $pb-min, $w-max, $w-min) ;
+                @if $pl-max!="" and $pl-min!="" {
+                    padding-left: responsive($pl-max, $pl-min, $w-max, $w-min) ;
+                } @else {
+                    padding-left: responsive($pr-max, $pr-min, $w-max, $w-min) ;
+                }
+            } @else {
+                padding-bottom: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+                padding-left: responsive($pr-max, $pr-min, $w-max, $w-min) ;
+            }
+
+        } @else {
+            padding-right: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+            padding-bottom: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+            padding-left: responsive($pt-max, $pt-min, $w-max, $w-min) ;
+        }
+    }
+}
