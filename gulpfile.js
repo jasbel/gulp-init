@@ -1,28 +1,3 @@
-/* plugins
-    gulp.- principal para el funcionamiento
-    imagemin.- minificador de imagenes
-    newer.- plugin para procesar solo archivos nuevos o modificados
-    sass.- procesador de sass a css
-    cleancss.- minificar css (Averigurar)
-    browserSync.- Sincroniza y recarga el navegador (F5) por cambios realizados
-    minify.- plugin babel minifica javascript moderno
-    pug.- Procesador a HTML5
-*/
-
-const gulp = require("gulp"),
-  imagemin = require("gulp-imagemin"),
-  newer = require("gulp-newer"),
-  sass = require("gulp-sass"),
-  cleanCSS = require("gulp-clean-css"),
-  browserSync = require("browser-sync").create(),
-  minifyJS = require("gulp-babel-minify"),
-  pug = require("gulp-pug");
-
-const sassOptions = {
-  outputStyle: "compressed",
-  errLogToConsole: true
-};
-
 /* Estructure
     src.- Carpeta de desarrollo 
     dist.- Carpeta de distribucion y compilado
@@ -35,182 +10,173 @@ const sassOptions = {
     gulp.serie.- proceso de tareas una detras de otra, una a una
 */
 
+/* plugins
+    gulp.- principal para el funcionamiento
+    sass.- procesador de sass a css
+    cssnano.- minificar css (Averigurar)
+    browserSync.- Sincroniza y recarga el navegador (F5) por cambios realizados
+    minify.- plugin babel minifica javascript moderno
+    ugly.- minificador javacript ES5
+    pug.- Procesador a HTML5
+    imagemin.- minificador de imagenes
+    newer.- plugin para procesar solo archivos nuevos o modificados
+*/
+
+// Initialize modules
+// Importing specific gulp API functions lets us write them below as series() instead of gulp.series()
+const { src, dest, watch, series, parallel } = require('gulp');
+
+// Importing all the Gulp-related packages we want to use
+const sourcemaps = require('gulp-sourcemaps');
+const sass = require('gulp-sass');
+const concat = require('gulp-concat');
+const uglify = require('gulp-uglify');
+const postcss = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
+const cssnano = require('cssnano');
+var replace = require('gulp-replace');
+// const minifyJS = require("gulp-babel-minify");
+
+const browserSync = require("browser-sync").create();
+const imagemin = require("gulp-imagemin");
+const pug = require("gulp-pug");
+const newer = require("gulp-newer");
+
+//sass options
+const sassOptions = {
+    outputStyle: "compressed",
+    errLogToConsole: true
+};
+
+// File paths
+const files = {
+    scssPath: 'src/scss/**/*.scss',
+    jsPath: 'src/js/*.js',
+    htmlPath: 'src/**/*.pug',
+    imagesPath: 'src/images/**/*',
+    fontPath: 'src/fonts/**/*',
+    indexHtmlPath: 'src/*.html'
+}
+
 /************************* */
 /*      Primary           */
 /************************ */
 
-// Tarea para procesas archive sass  Styles.scss a carpeta dist
-gulp.task("sass", () => {
-  return gulp
-    .src("src/scss/styles.scss")
-    .pipe(sass(sassOptions))
-    .pipe(gulp.dest("dist/css"))
-    .pipe(browserSync.reload({ stream: true }));
-});
+// Sass task: compiles the style.scss file into style.css
+function scssTask() {
+    return src(files.scssPath)
+        .pipe(sourcemaps.init()) // initialize sourcemaps first
+        .pipe(sass(sassOptions)) // compile SCSS to CSS
+        .pipe(postcss([autoprefixer(), cssnano()])) // PostCSS plugins
+        .pipe(sourcemaps.write('.')) // write sourcemaps file in current directory
+        .pipe(dest('dist/css')) // put final CSS in dist folder
+        .pipe(browserSync.reload({ stream: true })); //recharge page
+}
 
-//Minificafor CSS (only styles)
-gulp.task("cssmin", () => {
-  return gulp
-    .src("dist/css/styles.css")
-    .pipe(cleanCSS({ compatibility: "ie8", level: 2 }))
-    .pipe(gulp.dest("dist/css/min"));
-});
+// JS task: concatenates and uglifies JS files to script.js
+function jsTask() {
+    return src([
+            files.jsPath
+            //,'!' + 'includes/js/jquery.min.js', // to exclude any specific files
+        ])
+        .pipe(concat('main.min.js'))
+        .pipe(uglify())
+        .pipe(dest('dist/js'))
+        .pipe(browserSync.reload({ stream: true }));
+}
 
-//Minificafor imagenes
-gulp.task("images", () => {
-  return gulp
-    .src("src/images/**/*")
-    .pipe(newer("dist/images"))
-    .pipe(imagemin())
-    .pipe(gulp.dest("dist/images"))
-    .pipe(browserSync.reload({ stream: true }));
-});
-
-//minificador js
-gulp.task("minifyjs", () =>
-  gulp
-    .src("src/js/*")
-    .pipe(minifyJS({ mangle: { keepClassName: true } }))
-    .pipe(gulp.dest("dist/js"))
-    .pipe(browserSync.reload({ stream: true }))
-);
-
-//Pug Preprocesador HTML (only index)
-// https://www.npmjs.com/package/gulp-pug
-gulp.task("pug", function buildHTML() {
-  return gulp
-    .src("src/index.pug")
-    .pipe(pug())
-    .pipe(gulp.dest("dist/"))
-    .pipe(browserSync.reload({ stream: true }));
-});
-
-/************************* */
-/*      SECUNDARIOS        */
-/************************* */
+//Minify images
+function imagesTask() {
+    return src([files.imagesPath])
+        .pipe(newer("dist/images"))
+        .pipe(imagemin())
+        .pipe(dest("dist/images"))
+        .pipe(browserSync.reload({ stream: true }));
+}
 
 // Copy fonts
-gulp.task("fonts", () => {
-  return gulp
-    .src("src/fonts/**/*")
-    .pipe(gulp.dest("dist/fonts"))
-    .pipe(browserSync.reload({ stream: true }));
-});
+function fontTask() {
+    return src([files.fontPath])
+        .pipe(dest("dist/fonts"))
+        .pipe(browserSync.reload({ stream: true }));
+}
+
+//Pug Preprocesador HTML (only index)
+function pugHTMLTask() {
+    return src([files.htmlPath])
+        .pipe(pug())
+        .pipe(dest("dist/"))
+        .pipe(browserSync.reload({ stream: true }));
+}
+
+//js Babel codigo moderno
+function jsBabelTask() {
+    return src([files.jsPath])
+        .pipe(minifyJS({ mangle: { keepClassName: true } }))
+        .pipe(dest("dist/js"))
+        .pipe(browserSync.reload({ stream: true }))
+}
+//index HTML
+function indexHtmlTask() {
+    return src([files.indexHtmlPath])
+        .pipe(dest("dist/"))
+        .pipe(browserSync.reload({ stream: true }))
+}
 
 //FILES FOR GITHUB-PAGES MASTER/DOCS
-gulp.task("docs", () => gulp.src("dist/**/*").pipe(gulp.dest("docs")));
+function docsGitHUb() {
+    return src("dist/**/*").pipe(dest("docs"))
+};
 
-/************************* */
-/*      NODE MODULES       */
-/************************ */
+/*************************** */
+/*      Whatch Server        */
+/*************************** */
 
-/*  Scss
- *    1.- Bootstrap
- *    2.- Slick-slider
- *    3.- Slick-theme
- */
-gulp.task("vendor-scss", () => {
-  return (
-    gulp
-      .src([
-        "node_modules/bootstrap/scss/bootstrap.scss",
-        "node_modules/slick-slider/slick/slick.scss",
-        "node_modules/slick-slider/slick/slick-theme.scss"
-      ])
-      .pipe(sass({ outputStyle: "compressed" }))
-      // .pipe(gulp.dest("dist/css/vendor"))
-      .pipe(gulp.dest("dist/css"))
-      .pipe(browserSync.reload({ stream: true }))
-  );
-});
-/*  CSS
- *    1.- FontAwesome
- *    2.-
- */
-gulp.task("vendor-css", () => {
-  return (
-    gulp
-      .src(
-        "./node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css"
-      )
-      // .pipe(gulp.dest("dist/css/vendor"))
-      .pipe(gulp.dest("dist/css"))
-      .pipe(browserSync.reload({ stream: true }))
-  );
-});
-/*    Fonts
- *      1.- FontAwesome
- *      2.- Slick-Fonts
- */
-gulp.task("vendor-fonts", () => {
-  return gulp
-    .src([
-      "./node_modules/@fortawesome/fontawesome-free/webfonts/*",
-      "./node_modules/slick-slider/slick/fonts/*"
-    ])
-    .pipe(gulp.dest("dist/fonts"))
-    .pipe(browserSync.reload({ stream: true }));
-});
-/*    JavaScripts
- *      1.- Bootstrap
- *      2.- Jquery
- *      3.- Popper.js
- *      4.- Slick-slider
- *      5.- scroll-Reveal
- */
-gulp.task("vendor-js", () => {
-  return gulp
-    .src([
-      "./node_modules/bootstrap/dist/js/bootstrap.min.js",
-      "./node_modules/bootstrap/dist/js/bootstrap.min.js.map",
-      "./node_modules/jquery/dist/jquery.min.js",
-      "./node_modules/popper.js/dist/umd/popper.min.js",
-      "./node_modules/slick-slider/slick/slick.min.js",
-      "./node_modules/scrollreveal/dist/scrollreveal.min.js"
-    ])
-    .pipe(gulp.dest("dist/js/vendor"))
-    .pipe(browserSync.reload({ stream: true }));
-});
-
-/******************** */
-/*      SERVER        */
-/******************** */
-gulp.task("serve", () => {
-  browserSync.init({
-    server: {
-      baseDir: "dist",
-      index: "index.html"
-    },
-    notify: false,
-    injectChanges: true
-  });
-  // gulp.watch("src/scss/**/*", gulp.series("sass","cssmin"));
-  gulp.watch("src/scss/**/*", gulp.series("sass"));
-  gulp.watch("src/images/**/*", gulp.series("images"));
-  // gulp.watch("src/**/*.pug", gulp.series("pug"));
-  gulp.watch("src/fonts/**/*", gulp.series("fonts"));
-  gulp.watch("src/js/*", gulp.series("minifyjs"));
-  gulp.watch("src/**/*.pug", gulp.series("pug"));
-  gulp.watch("dist/*").on("change", browserSync.reload);
-});
+// Watch task: watch SCSS and JS files for changes
+// If any change, run scss and js tasks simultaneously
+function watchTask() {
+    browserSync.init({
+        server: {
+            baseDir: "dist",
+            index: "index.html"
+        },
+        notify: false,
+        injectChanges: true
+    });
+    watch([files.scssPath, files.jsPath], { interval: 1000, usePolling: true }, //Makes docker work
+        series(
+            parallel(scssTask, jsTask)
+            // cacheBustTask
+        )
+    );
+    // watch([files.scssPath], series(scssTask));
+    // watch([files.jsPath], series(jsTask));
+    watch([files.imagesPath], series(imagesTask));
+    watch([files.fontPath], series(fontTask));
+    watch([files.indexHtmlPath], series(indexHtmlTask));
+    // watch([files.htmlPath], series(pugHTMLTask));
+    // watch([files.jsPath], series(jsBabelTask));
+    watch("dist/*").on("change", browserSync.reload);;
+    watch("src/*.html").on("change", browserSync.reload);;
+}
 
 /*********************** */
 /*  DEFAULT SERVER GULP  */
 /*********************** */
-gulp.task(
-  "default",
-  gulp.series(
-    gulp.parallel(
-      "fonts",
-      "images",
-      "minifyjs",
-      "sass",
-      "vendor-js",
-      "vendor-fonts"
-      // "vendor-scss",
-      // "vendor-css"
-      // "pug"
+
+// Export the default Gulp task so it can be run
+// Runs the scss and js tasks simultaneously
+// then runs cacheBust, then watch task
+exports.default = series(
+    parallel(
+        indexHtmlTask,
+        fontTask,
+        scssTask,
+        imagesTask,
+        jsTask,
+        // jsBabelTask,
+        // pugHTMLTask,
+        //docsGitHUb,
     ),
-    "serve"
-  )
+    watchTask
 );

@@ -1,22 +1,44 @@
 @charset 'UTF-8';
 
 // 1. Configuration and helpers
-@import "utilities/variables", "utilities/functions", "utilities/mixins";
+@import "mixins/variables";
 
 // 2. Vendors
-@import "vendors/normalize", "vendors/bootstrap", "vendors/fontawesome", "vendors/slick";
+// @import "vendors/normalize";
+// @import "vendors/scss/magnific/magnific";
+@import "vendors/slick/slick";
+@import "vendors/slick/slick-theme";
+@import "vendors/fontawesome/scss/fontawesome.scss";
+@import "vendors/fontawesome/scss/solid.scss";
+@import "vendors/fontawesome/scss/brands.scss";
+@import "vendors/bootstrap/bootstrap-reboot";
+@import "vendors/bootstrap/bootstrap-grid";
 
-// 3. Base stuff
-@import "base/base", "base/fonts", "base/typography", "base/helpers";
+// 2.5 mixins
+@import "mixins/fonts";
+@import "mixins/functions";
+@import "mixins/helpers";
 
-// 4. Layout-related sections or partials
-@import "layout/header", "layout/footer";
+// 3. partials
+@import "partials/reset";
+@import "partials/base";
+@import "partials/user";
+@import "partials/forms";
+@import "partials/table";
+@import "partials/icons";
+@import "partials/buttons";
+@import "partials/type";
 
-// 5. Components
-@import "components/button";
+// 4. layout
+@import "layout/footer";
+@import "layout/header";
+@import "layout/main";
+@import "layout/nav";
+@import "layout/responsive";
+@import "layout/print";
 
 // 6. Page-specific styles
-@import "pages/home";
+@import "view/home";
 
 // 7. Themes
 @import "themes/default";

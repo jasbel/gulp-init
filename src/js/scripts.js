@@ -1,13 +1,5 @@
-(function scrollReveal() {
-    window.sr = ScrollReveal();
-    sr.reveal("header", {
-        duration: 2000,
-        origin: "bottom",
-        reset: true
-    });
-})();
-
-$(document).ready(function () {
+//jquery
+$(document).ready(function() {
     $(".slicksliders").slick({
         // prevArrow: false,
         // nextArrow: false,
