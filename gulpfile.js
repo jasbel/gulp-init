@@ -113,6 +113,7 @@ function pugHTMLTask() {
 //js Babel codigo moderno
 function jsBabelTask() {
     return src([files.jsPath])
+        .pipe(concat('script.min.js'))
         .pipe(minifyJS({ mangle: { keepClassName: true } }))
         .pipe(dest("dist/js"))
         .pipe(browserSync.reload({ stream: true }))
