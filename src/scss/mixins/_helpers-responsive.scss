@@ -1,4 +1,65 @@
 
+@function responsive($max, $min: "", $w-max: $desktop-responsive, $w-min: $phone-responsive ) {
+
+    @if( $min == "" or $max == $min) {
+        @return $max + px;
+    }
+    $min-px: $min + px;
+    $w-min-px: $w-min + px;
+    $result: calc( #{$min-px} + (#{$max} - #{$min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+    @return $result;
+}
+
+@mixin responsive($attr:'', $size-max:'', $size-min: $font-size-small, $w-max: $desktop-responsive, $w-min: $phone-responsive) {
+    $size-max-px: $size-max + px;
+    $size-min-px: $size-min + px;
+    $w-min-px: $w-min + px;
+    $size-max-px: $size-max + px;
+    $desktop-px: $desktop-responsive * 1px;
+    $phone-px: $phone-responsive * 1px;
+
+    $property:'';
+    @if ($attr == fz or $attr == '') { $property: font-size; }
+    @else if ($attr == lh) { $property: line-height; }
+    @else if ($attr == m) { $property: margin; }
+    @else if ($attr == p) { $property: padding; }
+    @else if ($attr == t) { $property: top; }
+    @else if ($attr == l) { $property: left; }
+    @else if ($attr == b) { $property: bottom; }
+    @else if ($attr == r) { $property: right; }
+    @else if ($attr == w) { $property: width; }
+    @else if ($attr == h) { $property: height; }
+    @else if ($attr == mt) { $property: margin-top; }
+    @else if ($attr == mr) { $property: margin-right; }
+    @else if ($attr == mb) { $property: margin-bottom; }
+    @else if ($attr == ml) { $property: margin-left; }
+    @else if ($attr == pt) { $property: padding-top; }
+    @else if ($attr == pr) { $property: padding-right; }
+    @else if ($attr == pb) { $property: padding-bottom; }
+    @else if ($attr == pl) { $property: padding-left; }
+    @else if ($attr == mw or $attr == maxw) { $property: max-width; }
+    @else if ($attr == mh or $attr == minh) { $property: min-height; }
+    @else if ($attr == mnw or $attr == minw) { $property: min-width; }
+    @else if ($attr == mxh or $attr == maxh) { $property: max-height; }
+    @else {$property: $attr;}
+
+    #{$property}: $size-max-px;
+    @if( $w-max == $desktop-responsive and $w-min == $phone-responsive) {
+        @media (max-width: $desktop-px) {
+            & {
+                #{$property}: calc( #{$size-min-px} + (#{$size-max} - #{$size-min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+            }
+        }
+        @media (max-width: $phone-px) {
+            & {
+                #{$property}:  #{$size-min-px} ;
+            }
+        }
+    } @else {
+        #{$property}: calc( #{$size-min-px} + (#{$size-max} - #{$size-min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
+    }
+}
+
 //How to use:   @include  font-responsive(26, 20)
 // font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300))) ;
 @mixin font-responsive($f-max, $f-min: $font-size-small, $w-max: $desktop-responsive, $w-min: $phone-responsive) {
@@ -27,16 +88,6 @@
     
 }
 
-@function responsive($max, $min: "", $w-max: $desktop-responsive, $w-min: $phone-responsive ) {
-
-    @if( $min == "" or $max == $min) {
-        @return $max + px;
-    }
-    $min-px: $min + px;
-    $w-min-px: $w-min + px;
-    $result: calc( #{$min-px} + (#{$max} - #{$min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
-    @return $result;
-}
 
 @mixin padding-responsive( $pt-max:"", $pt-min:"", $pr-max:"", $pr-min:"", $pb-max:"", $pb-min:"", $pl-max:"", $pl-min:"", $w-max: $desktop-responsive, $w-min: $phone-responsive ) {
     @if $pt-max!="" and $pt-min!="" {
