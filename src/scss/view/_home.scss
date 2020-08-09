@@ -10,6 +10,9 @@
 //     @include responsive(font-size, 80, 20) ;
 //     background-color: red;
 //     @include responsive(p, 100, 50)
-     @include responsive(p, 200, 40);
+//      @include responsive(p, 200, 40);
      @include responsive(fz, 200, 40);
+}
+.heading-two {
+        @include font-responsive(200, 40) ;
 }

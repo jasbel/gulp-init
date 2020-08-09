@@ -1,6 +1,8 @@
-@use "sass:map";
-@use "sass:list";
+// @use "sass:map";
+// @use "sass:list";
+// @use "sass:math";
 
+//How to use:  padding: interpolation(100, 48, 600, 1440, 375);
 @function interpolation($max, $min: "", $w-screen: $desktop-responsive, $w-max: $desktop-responsive, $w-min: $phone-responsive) {
 
     @if($min==""or $max==$min) {
@@ -8,9 +10,11 @@
     }
 
     $result: $min+($max - $min) * ($w-screen - $w-min) / ($w-max - $w-min);
-    @return $result+px;
+    $result-round: round($result*100) / 100;
+    @return $result-round+px;
 }
 
+//How to use:  padding: responsive(100, 48, 1440, 375);
 @function responsive($max, $min: "", $w-max: $desktop-responsive, $w-min: $phone-responsive) {
 
     @if($min==""or $max==$min) {
@@ -23,13 +27,12 @@
     @return $result;
 }
 
-
+//How to use:   @include  responsive(font-size, 60, 39, 1440, 600)
 @mixin responsive($attr:'', $size-max:'', $size-min: $font-size-small, $w-max: $desktop-responsive, $w-min: $phone-responsive) {
     $size-max-px: $size-max + px;
     $size-min-px: $size-min + px;
     $w-max-px: $w-max + px;
     $w-min-px: $w-min + px;
-    $size-max-px: $size-max + px;
     $desktop-px: $desktop-responsive * 1px;
     $phone-px: $phone-responsive * 1px;
 
@@ -63,11 +66,13 @@
         mxh: max-height,
         maxh: max-height,
     );
-    
+
     $property: '';
-    @if( map-has-key($property-map, $attr)) {
+
+    @if(map-has-key($property-map, $attr)) {
         $property: map-get($property-map, $attr);
     }
+
     @else {
         $property: $attr;
     }
@@ -75,47 +80,14 @@
     #{$property}: $size-max-px;
 
     // @supports not ( $property: $responsive-calc) {
-        
-    @if($desktop-r <= $w-max and $desktop-r >= $w-min) {
-        $screen-width-px : $desktop-r + px;
-        @media (max-width: #{$screen-width-px}) {
-            #{$property}: interpolation($size-max, $size-min, $desktop-r, $w-max, $w-min);
-        }
-    } 
-    @if($medium-desktop-r <= $w-max and $medium-desktop-r >= $w-min) {
-        $screen-width-px : $medium-desktop-r + px;
-        @media (max-width: #{$screen-width-px}) {
-            #{$property}: interpolation($size-max, $size-min, $medium-desktop-r, $w-max, $w-min);
-        }
-    } 
-    @if($tablet-r <= $w-max and $tablet-r >= $w-min) {
-        $screen-width-px : $tablet-r + px;
-        @media (max-width: #{$screen-width-px}) {
-            #{$property}: interpolation($size-max, $size-min, $tablet-r, $w-max, $w-min);
-        }
-    } 
-    @if($small-tablet-r <= $w-max and $small-tablet-r >= $w-min) {
-        $screen-width-px : $small-tablet-r + px;
-        @media (max-width: #{$screen-width-px}) {
-            #{$property}: interpolation($size-max, $size-min, $small-tablet-r, $w-max, $w-min);
-        }
-    } 
-    @if($large-phone-r <= $w-max and $large-phone-r >= $w-min) {
-        $screen-width-px : $large-phone-r + px;
-        @media (max-width: #{$screen-width-px}) {
-            #{$property}: interpolation($size-max, $size-min, $large-phone-r, $w-max, $w-min);
-        }
-    } 
-    @if($phone-r <= $w-max and $phone-r >= $w-min) {
-        $screen-width-px : $phone-r + px;
-        @media (max-width: #{$screen-width-px}) {
-            #{$property}: interpolation($size-max, $size-min, $phone-r, $w-max, $w-min);
-        }
-    } 
-    @if($small-phone-r <= $w-max and $small-phone-r >= $w-min) {
-        $screen-width-px : $small-phone-r + px;
-        @media (max-width: #{$screen-width-px}) {
-            #{$property}: interpolation($size-max, $size-min, $small-phone-r, $w-max, $w-min);
+    @each $screen in $screen-list {
+        @if($screen < $w-max and $screen > $w-min) {
+            $screen-px: $screen + px;
+
+            @media (max-width: #{$screen-px}) {
+                #{$property}: interpolation($size-max, $size-min, $screen, $w-max, $w-min);
+
+            }
         }
     }
     // }
@@ -130,36 +102,12 @@
 }
 
 //How to use:   @include  font-responsive(26, 20)
-// font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300))) ;
 @mixin font-responsive($f-max, $f-min: $font-size-small, $w-max: $desktop-responsive, $w-min: $phone-responsive) {
-
-    $f-min-px: $f-min + px;
-    $w-min-px: $w-min + px;
-    $font-size: $f-max + px;
-    $desktop-px: $desktop-responsive * 1px;
-    $phone-px: $phone-responsive * 1px;
-    font-size: $font-size;
-
-    @if($w-max==$desktop-responsive and $w-min==$phone-responsive) {
-        @media (max-width: $desktop-px) {
-            & {
-                font-size: calc(#{$f-min-px} + (#{$f-max} - #{$f-min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
-            }
-        }
-
-        @media (max-width: $phone-px) {
-            & {
-                font-size: #{$f-min-px};
-            }
-        }
-    }
-
-    @else {
-        font-size: calc(#{$f-min-px} + (#{$f-max} - #{$f-min}) * ((100vw - #{$w-min-px}) / (#{$w-max} - #{$w-min})));
-    }
-
+    // font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300))) ;
+    @include responsive(fz, $f-max, $f-min, $w-max, $w-min);
 }
 
+//How to use:   @include  padding-responsive(26, 20)
 @mixin padding-responsive($pt-max:"", $pt-min:"", $pr-max:"", $pr-min:"", $pb-max:"", $pb-min:"", $pl-max:"", $pl-min:"", $w-max: $desktop-responsive, $w-min: $phone-responsive) {
     @if $pt-max !=""and $pt-min !="" {
         padding-top: responsive($pt-max, $pt-min, $w-max, $w-min);
