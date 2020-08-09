@@ -37,10 +37,11 @@ const cssnano = require('cssnano');
 var replace = require('gulp-replace');
 // const minifyJS = require("gulp-babel-minify");
 
-const browserSync = require("browser-sync").create();
 const imagemin = require("gulp-imagemin");
 const pug = require("gulp-pug");
 const newer = require("gulp-newer");
+const browserSync = require("browser-sync").create();
+const reload = browserSync.reload;
 
 //sass options
 const sassOptions = {
@@ -71,13 +72,13 @@ function scssTask() {
         .pipe(postcss([autoprefixer(), cssnano()])) // PostCSS plugins
         .pipe(sourcemaps.write('.')) // write sourcemaps file in current directory
         .pipe(dest('dist/css')) // put final CSS in dist folder
+        .pipe(browserSync.stream());
 }
 
 // JS task: concatenates and uglifies JS files to script.js
 function jsTask() {
     return src([
             files.jsPath
-            //,'!' + 'includes/js/jquery.min.js', // to exclude any specific files
         ])
         .pipe(concat('main.min.js'))
         .pipe(uglify())
@@ -132,7 +133,7 @@ function watchTask() {
     var filess = [
         '**/*.html',
         'src/css/**/*.css',
-        'src/js/**/*.js',
+        'src/js/*.js',
         'src/scss/**/*.scss'
      ];
     browserSync.init(filess, {
@@ -140,13 +141,13 @@ function watchTask() {
             baseDir: "dist",
             index: "index.html"
         },
-        notify: false,
+        notify: true,
         injectChanges: true
-    });
+    }
+    );
    /*  watch([files.scssPath, files.jsPath], { interval: 1000, usePolling: true }, //Makes docker work
         series(
             parallel(scssTask, jsTask)
-            // cacheBustTask
         )
     ); */
     watch([files.scssPath], series(scssTask))
@@ -154,6 +155,7 @@ function watchTask() {
     watch([files.imagesPath], series(imagesTask));
     watch([files.fontPath], series(fontTask));
     watch([files.indexHtmlPath], series(indexHtmlTask));
+    watch("**/*.html").on("change", reload);
     // watch([files.htmlPath], series(pugHTMLTask));
     // watch([files.jsPath], series(jsBabelTask));;
 }
@@ -171,7 +173,7 @@ exports.default = series(
         fontTask,
         scssTask,
         imagesTask,
-        jsTask,
+        // jsTask,
         // jsBabelTask,
         // pugHTMLTask,
         //docsGitHUb,
